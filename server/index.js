@@ -17,58 +17,26 @@ import addressRouter from "./route/address.route.js";
 import orderRouter from "./route/order.route.js";
 
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+const PORT = process.env.PORT || 8080;
 
-// ✅ Allow multiple origins
-const allowedOrigins = [
-
-    "http://localhost:5173"
-];
-
-app.use(
-    cors({
-        credentials: true,
-        origin: function (origin, callback) {
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-    })
-);
+/* ================= MIDDLEWARE ================= */
+app.use(cors({
+  origin: ["http://localhost:5173"],
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(
-    helmet({
-        crossOriginResourcePolicy: false,
-    })
-);
+app.use(helmet({ crossOriginResourcePolicy: false }));
 
-// ES module workaround for __dirname
-const _dirname = path.resolve()
-
-const PORT = process.env.PORT || 8080;
-
-app.get("/", (req, res) => {
-    res.json({
-        message: `Server is running on PORT ${PORT}`,
-    });
-});
-
-// Serve static frontend (Vite build)
-const staticPath = path.join(_dirname, "client", "dist");
-app.use(express.static(staticPath));
-
-// Fallback route for SPA (non-API)
- app.get(/^\/(?!api).*/, (_, res) => {
-  res.sendFile(path.join(staticPath, "index.html"));
-});
-
-// ✅ Mount routers
+/* ================= API ROUTES ================= */
 app.use("/api/user", userRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/file", uploadRouter);
@@ -78,9 +46,18 @@ app.use("/api/cart", cartRouter);
 app.use("/api/address", addressRouter);
 app.use("/api/order", orderRouter);
 
-// ✅ Connect DB and start server
+/* ================= FRONTEND (REACT BUILD) ================= */
+const staticPath = path.join(__dirname, "../client/dist");
+app.use(express.static(staticPath));
+
+// Express v5 compatible fallback (NO "*")
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(staticPath, "index.html"));
+});
+
+/* ================= START SERVER ================= */
 connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });
