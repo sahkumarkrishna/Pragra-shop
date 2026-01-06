@@ -1,0 +1,93 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400; /* normal readable */
+  @apply bg-blue-50 text-neutral-800;
+}
+
+/* Hide scrollbar */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom scrollbar */
+.scrollbarCustom::-webkit-scrollbar {
+  width: 10px;
+  @apply bg-slate-100;
+}
+
+.scrollbarCustom::-webkit-scrollbar-thumb {
+  @apply bg-blue-200 rounded-full;
+}
+
+.auth-input {
+  @apply w-full mt-1 bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 outline-none
+  focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition;
+}
+
+.auth-password {
+  @apply mt-1 flex items-center bg-gray-100 border border-gray-200 rounded-lg px-3 py-2
+  focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition;
+}
+
+.auth-password input {
+  @apply w-full bg-transparent outline-none;
+}
+
+.auth-password span {
+  @apply cursor-pointer text-gray-500;
+}
+
+.social-btn {
+  @apply w-full flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition;
+}
+
+.auth-input {
+  @apply w-full mt-1 bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 outline-none
+  focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition;
+}
+
+.auth-password {
+  @apply mt-1 flex items-center bg-gray-100 border border-gray-200 rounded-lg px-3 py-2
+  focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition;
+}
+
+.auth-password input {
+  @apply w-full bg-transparent outline-none;
+}
+
+.auth-password span {
+  @apply cursor-pointer text-gray-500;
+}
+
+.social-btn {
+  @apply w-full flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition;
+}
+.social-btn-google {
+  @apply bg-red-500 text-white hover:bg-red-600;
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+  100% { transform: translateY(0); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+.animate-float-slow {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-float-fast {
+  animation: float 3s ease-in-out infinite;
+}
