@@ -27,7 +27,7 @@ const PORT = process.env.PORT || 8080;
 
 /* ================= MIDDLEWARE ================= */
 app.use(cors({
-  origin: ["http://localhost:5173"],
+  origin: ["https://pragra-shop.onrender.com"],
   credentials: true
 }));
 
