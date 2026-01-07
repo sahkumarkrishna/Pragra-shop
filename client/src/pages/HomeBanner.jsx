@@ -1,29 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const banners = [
-  {
-    title: "Health & Care",
-    highlight: "First",
-    desc: "Take care of your body and mind with trusted health and wellness products.",
-    bg: "from-lime-600 to-green-600",
-    icon: "💊",
-  },
-  {
-    title: "Wellness That",
-    highlight: "Matters",
-    desc: "Explore vitamins, immunity boosters, fitness essentials, and self-care solutions.",
-    bg: "from-emerald-600 to-teal-600",
-    icon: "🧘",
-  },
-  {
-    title: "Daily Health",
-    highlight: "Essentials",
-    desc: "Masks, sanitizers, medical supplies, and hygiene products for daily needs.",
-    bg: "from-green-600 to-cyan-600",
-    icon: "🩺",
-  },
-];
+const banners = [{ title: "Health & Care", highlight: "First", desc: "Take care of your body and mind with trusted health and wellness products. From daily supplements to personal hygiene essentials, everything is designed to support a healthier, more balanced lifestyle for you and your family.", bg: "from-lime-600 to-green-600", icon: "💊", }, { title: "Wellness That", highlight: "Matters", desc: "Explore a wide range of wellness products including vitamins, immunity boosters, fitness essentials, and self-care solutions that help you stay active, energetic, and stress-free every day.", bg: "from-emerald-600 to-teal-600", icon: "🧘", }, { title: "Daily Health", highlight: "Essentials", desc: "Stock up on everyday health essentials such as masks, sanitizers, medical supplies, and hygiene products. Designed for convenience, safety, and reliability for your daily health needs.", bg: "from-green-600 to-cyan-600", icon: "🩺", }, { title: "Immunity", highlight: "Boosters", desc: "Strengthen your immunity with carefully selected supplements, herbal products, and nutrition essentials. Support your body’s natural defense system and stay protected throughout every season.", bg: "from-lime-500 to-emerald-500", icon: "🛡️", }, { title: "Personal Care", highlight: "Routine", desc: "Upgrade your personal care routine with skincare, haircare, oral care, and grooming products. Gentle, effective, and suitable for all skin types, ensuring confidence and freshness all day long.", bg: "from-rose-500 to-pink-600", icon: "🧴", }, { title: "Fitness &", highlight: "Recovery", desc: "Support your fitness journey with recovery tools, protein supplements, wellness accessories, and health monitors. Designed to help you perform better, recover faster, and maintain a healthy routine.", bg: "from-blue-600 to-indigo-600", icon: "🏋️", }, { title: "Care for", highlight: "Every Age", desc: "Health products tailored for kids, adults, and seniors. From baby care to senior wellness essentials, discover solutions that provide comfort, care, and peace of mind for every stage of life.", bg: "from-yellow-500 to-orange-500", icon: "👨‍👩‍👧‍👦", }, { title: "Mind & Body", highlight: "Balance", desc: "Focus on mental wellness with stress-relief products, relaxation tools, and self-care essentials. Create a calm, balanced lifestyle that supports both emotional well-being and physical health.", bg: "from-purple-600 to-violet-600", icon: "🧠", }, { title: "Medical", highlight: "Care", desc: "Access reliable medical equipment and health devices including thermometers, BP monitors, and wellness trackers. Accurate, easy-to-use tools that help you monitor and manage your health at home.", bg: "from-slate-600 to-gray-700", icon: "🩹", }, { title: "Healthy Living", highlight: "Everyday", desc: "Adopt healthier habits with nutrition products, organic care items, and lifestyle essentials. Simple choices today can lead to long-term wellness and a more energetic, healthier future.", bg: "from-green-700 to-lime-700", icon: "🌿", }];
 
 const HomeBanner = () => {
   const [index, setIndex] = useState(0);
@@ -90,9 +68,8 @@ const HomeBanner = () => {
           {banners.map((_, i) => (
             <span
               key={i}
-              className={`h-2 rounded-full transition-all ${
-                i === index ? "w-6 bg-white" : "w-2 bg-white/50"
-              }`}
+              className={`h-2 rounded-full transition-all ${i === index ? "w-6 bg-white" : "w-2 bg-white/50"
+                }`}
             />
           ))}
         </div>
