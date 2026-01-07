@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { IoClose } from "react-icons/io5";
 import { useSelector } from "react-redux";
 
 import uploadImage from "../utils/UploadImage";
@@ -36,6 +35,8 @@ const UploadProduct = () => {
   const [openAddField, setOpenAddField] = useState(false);
   const [fieldName, setFieldName] = useState("");
 
+  /* ================= HANDLERS ================= */
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setData((prev) => ({ ...prev, [name]: value }));
@@ -53,14 +54,14 @@ const UploadProduct = () => {
       ...prev,
       image: [...prev.image, imageUrl],
     }));
-
     setImageLoading(false);
   };
 
   const handleDeleteImage = (index) => {
-    const images = [...data.image];
-    images.splice(index, 1);
-    setData((prev) => ({ ...prev, image: images }));
+    setData((prev) => ({
+      ...prev,
+      image: prev.image.filter((_, i) => i !== index),
+    }));
   };
 
   const handleAddField = () => {
@@ -94,6 +95,8 @@ const UploadProduct = () => {
           description: "",
           more_details: {},
         });
+        setSelectCategory("");
+        setSelectSubCategory("");
       }
     } catch (error) {
       AxiosToastError(error);
@@ -102,27 +105,15 @@ const UploadProduct = () => {
 
   return (
     <section className="bg-slate-50 min-h-screen p-4">
-
-      {/* HEADER */}
-      <div className="bg-white shadow rounded-lg p-4 mb-6">
-        <h2 className="text-lg font-semibold">Add New Product</h2>
-        <p className="text-sm text-gray-500">
-          Fill in the details below to add a product to your store
-        </p>
-      </div>
-
-      {/* FORM */}
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow rounded-xl p-6 grid gap-6 max-w-4xl mx-auto"
       >
-
         {/* PRODUCT NAME */}
         <div>
           <label className="font-medium">Product Name</label>
           <input
             name="name"
-            placeholder="Enter product name (e.g. Wireless Headphones)"
             value={data.name}
             onChange={handleChange}
             required
@@ -136,7 +127,6 @@ const UploadProduct = () => {
           <textarea
             name="description"
             rows={3}
-            placeholder="Describe the product features, usage, and benefits"
             value={data.description}
             onChange={handleChange}
             required
@@ -144,70 +134,27 @@ const UploadProduct = () => {
           />
         </div>
 
-        {/* IMAGE UPLOAD */}
-        <div>
-          <label className="font-medium">Product Images</label>
-          <label className="mt-2 h-28 border-dashed border-2 rounded flex flex-col items-center justify-center cursor-pointer bg-slate-50">
-            {imageLoading ? (
-              <Loading />
-            ) : (
-              <>
-                <FaCloudUploadAlt size={30} />
-                <p className="text-sm">Click to upload product images</p>
-                <p className="text-xs text-gray-500">
-                  JPG, PNG (recommended)
-                </p>
-              </>
-            )}
-            <input
-              type="file"
-              hidden
-              accept="image/*"
-              onChange={handleUploadImage}
-            />
-          </label>
-
-          <div className="flex flex-wrap gap-3 mt-3">
-            {data.image.map((img, index) => (
-              <div
-                key={img}
-                className="w-20 h-20 border rounded relative group"
-              >
-                <img
-                  src={img}
-                  alt="product"
-                  className="w-full h-full object-contain cursor-pointer"
-                  onClick={() => setViewImageURL(img)}
-                />
-                <button
-                  type="button"
-                  onClick={() => handleDeleteImage(index)}
-                  className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded hidden group-hover:block"
-                >
-                  <MdDelete />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* CATEGORY & SUBCATEGORY */}
         <div className="grid gap-4 md:grid-cols-2">
+          {/* CATEGORY */}
           <div>
             <label className="font-medium">Category</label>
             <select
               className="w-full mt-1 p-2 border rounded bg-slate-50"
               value={selectCategory}
               onChange={(e) => {
-                const cat = allCategory.find(
-                  (c) => c._id === e.target.value
-                );
+                const value = e.target.value;
+                const cat = allCategory.find((c) => c._id === value);
                 if (!cat) return;
+
+                setSelectCategory(value);
+                setSelectSubCategory("");
+
                 setData((prev) => ({
                   ...prev,
-                  category: [...prev.category, cat],
+                  category: [cat],
+                  subCategory: [],
                 }));
-                setSelectCategory("");
               }}
             >
               <option value="">Select main category</option>
@@ -217,115 +164,52 @@ const UploadProduct = () => {
                 </option>
               ))}
             </select>
-
-            <div className="flex flex-wrap gap-2 mt-2">
-              {data.category.map((c, i) => (
-                <span
-                  key={i}
-                  className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded text-sm"
-                >
-                  {c.name}
-                  <IoClose
-                    className="cursor-pointer"
-                    onClick={() =>
-                      setData((prev) => ({
-                        ...prev,
-                        category: prev.category.filter(
-                          (_, idx) => idx !== i
-                        ),
-                      }))
-                    }
-                  />
-                </span>
-              ))}
-            </div>
           </div>
 
+          {/* SUB CATEGORY */}
           <div>
             <label className="font-medium">Sub Category</label>
             <select
               className="w-full mt-1 p-2 border rounded bg-slate-50"
               value={selectSubCategory}
+              disabled={!selectCategory}
               onChange={(e) => {
-                const sc = allSubCategory.find(
-                  (s) => s._id === e.target.value
-                );
+                const value = e.target.value;
+                const sc = allSubCategory.find((s) => s._id === value);
                 if (!sc) return;
+
+                setSelectSubCategory(value);
+
                 setData((prev) => ({
                   ...prev,
-                  subCategory: [...prev.subCategory, sc],
+                  subCategory: [sc],
                 }));
-                setSelectSubCategory("");
               }}
             >
-              <option value="">Select sub category</option>
-              {allSubCategory.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
+              <option value="">
+                {selectCategory
+                  ? "Select sub category"
+                  : "Select category first"}
+              </option>
+
+              {allSubCategory
+                .filter((sub) =>
+                  sub.category.some((c) => c._id === selectCategory)
+                )
+                .map((sub) => (
+                  <option key={sub._id} value={sub._id}>
+                    {sub.name}
+                  </option>
+                ))}
             </select>
           </div>
         </div>
-
-        {/* PRICE & STOCK */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <input
-            name="stock"
-            placeholder="Available stock (e.g. 50)"
-            value={data.stock}
-            onChange={handleChange}
-            className="p-2 border rounded bg-slate-50"
-          />
-          <input
-            name="price"
-            placeholder="Selling price (₹)"
-            value={data.price}
-            onChange={handleChange}
-            className="p-2 border rounded bg-slate-50"
-          />
-          <input
-            name="discount"
-            placeholder="Discount percentage (e.g. 10)"
-            value={data.discount}
-            onChange={handleChange}
-            className="p-2 border rounded bg-slate-50"
-          />
-        </div>
-
-        {/* EXTRA FIELDS */}
-        {Object.keys(data.more_details).map((key) => (
-          <input
-            key={key}
-            placeholder={`Enter ${key}`}
-            value={data.more_details[key]}
-            onChange={(e) =>
-              setData((prev) => ({
-                ...prev,
-                more_details: {
-                  ...prev.more_details,
-                  [key]: e.target.value,
-                },
-              }))
-            }
-            className="p-2 border rounded bg-slate-50"
-          />
-        ))}
-
-        <button
-          type="button"
-          onClick={() => setOpenAddField(true)}
-          className="w-fit border px-4 py-1 rounded hover:bg-slate-100"
-        >
-          + Add Custom Field
-        </button>
 
         <button className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold">
           Submit Product
         </button>
       </form>
 
-      {/* MODALS */}
       {viewImageURL && (
         <ViewImage url={viewImageURL} close={() => setViewImageURL("")} />
       )}
