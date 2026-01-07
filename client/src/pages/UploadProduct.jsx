@@ -18,13 +18,13 @@ const UploadProduct = () => {
 
   const [data, setData] = useState({
     name: "",
+    description: "",
     image: [],
     category: [],
     subCategory: [],
     stock: "",
     price: "",
     discount: "",
-    description: "",
     more_details: {},
   });
 
@@ -47,14 +47,15 @@ const UploadProduct = () => {
     if (!file) return;
 
     setImageLoading(true);
-    const response = await uploadImage(file);
-    const imageUrl = response.data.data.url;
-
-    setData((prev) => ({
-      ...prev,
-      image: [...prev.image, imageUrl],
-    }));
-    setImageLoading(false);
+    try {
+      const res = await uploadImage(file);
+      setData((prev) => ({
+        ...prev,
+        image: [...prev.image, res.data.data.url],
+      }));
+    } finally {
+      setImageLoading(false);
+    }
   };
 
   const handleDeleteImage = (index) => {
@@ -77,85 +78,129 @@ const UploadProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await Axios({
+      const res = await Axios({
         ...SummaryApi.createProduct,
         data,
       });
-
-      if (response.data.success) {
-        successAlert(response.data.message);
+      if (res.data.success) {
+        successAlert(res.data.message);
         setData({
           name: "",
+          description: "",
           image: [],
           category: [],
           subCategory: [],
           stock: "",
           price: "",
           discount: "",
-          description: "",
           more_details: {},
         });
         setSelectCategory("");
         setSelectSubCategory("");
       }
-    } catch (error) {
-      AxiosToastError(error);
+    } catch (err) {
+      AxiosToastError(err);
     }
   };
 
   return (
     <section className="bg-slate-50 min-h-screen p-4">
+      {/* HEADER */}
+      <div className="bg-white rounded-xl shadow p-4 mb-6">
+        <h2 className="text-lg font-semibold">Add New Product</h2>
+        <p className="text-sm text-gray-500">
+          Fill in the details below to add a product to your store
+        </p>
+      </div>
+
+      {/* FORM */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow rounded-xl p-6 grid gap-6 max-w-4xl mx-auto"
+        className="bg-white rounded-xl shadow p-6 max-w-4xl mx-auto space-y-6"
       >
         {/* PRODUCT NAME */}
         <div>
-          <label className="font-medium">Product Name</label>
+          <label className="text-sm font-medium">Product Name</label>
           <input
             name="name"
             value={data.name}
             onChange={handleChange}
+            placeholder="Enter product name (e.g. Wireless Headphones)"
+            className="w-full mt-1 p-2 border rounded bg-slate-50"
             required
-            className="w-full mt-1 p-2 rounded border bg-slate-50"
           />
         </div>
 
         {/* DESCRIPTION */}
         <div>
-          <label className="font-medium">Product Description</label>
+          <label className="text-sm font-medium">Product Description</label>
           <textarea
             name="description"
-            rows={3}
+            rows={4}
             value={data.description}
             onChange={handleChange}
+            placeholder="Describe the product features, usage, and benefits"
+            className="w-full mt-1 p-2 border rounded bg-slate-50 resize-none"
             required
-            className="w-full mt-1 p-2 rounded border bg-slate-50 resize-none"
           />
         </div>
 
-        {/* CATEGORY & SUBCATEGORY */}
-        <div className="grid gap-4 md:grid-cols-2">
-          {/* CATEGORY */}
+        {/* IMAGES */}
+        <div>
+          <label className="text-sm font-medium">Product Images</label>
+          <label className="mt-2 h-32 border-2 border-dashed rounded flex flex-col items-center justify-center cursor-pointer bg-slate-50">
+            {imageLoading ? (
+              <Loading />
+            ) : (
+              <>
+                <FaCloudUploadAlt size={26} />
+                <p className="text-sm mt-1">Click to upload product images</p>
+                <p className="text-xs text-gray-500">JPG, PNG (recommended)</p>
+              </>
+            )}
+            <input type="file" hidden accept="image/*" onChange={handleUploadImage} />
+          </label>
+
+          <div className="flex gap-3 mt-3 flex-wrap">
+            {data.image.map((img, i) => (
+              <div key={img} className="w-20 h-20 border rounded relative">
+                <img
+                  src={img}
+                  alt="product"
+                  className="w-full h-full object-contain cursor-pointer"
+                  onClick={() => setViewImageURL(img)}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleDeleteImage(i)}
+                  className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded"
+                >
+                  <MdDelete size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CATEGORY */}
+        <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="font-medium">Category</label>
+            <label className="text-sm font-medium">Category</label>
             <select
-              className="w-full mt-1 p-2 border rounded bg-slate-50"
               value={selectCategory}
               onChange={(e) => {
-                const value = e.target.value;
-                const cat = allCategory.find((c) => c._id === value);
+                const val = e.target.value;
+                const cat = allCategory.find((c) => c._id === val);
                 if (!cat) return;
-
-                setSelectCategory(value);
+                setSelectCategory(val);
                 setSelectSubCategory("");
-
                 setData((prev) => ({
                   ...prev,
                   category: [cat],
                   subCategory: [],
                 }));
               }}
+              className="w-full mt-1 p-2 border rounded bg-slate-50"
             >
               <option value="">Select main category</option>
               {allCategory.map((c) => (
@@ -166,46 +211,73 @@ const UploadProduct = () => {
             </select>
           </div>
 
-          {/* SUB CATEGORY */}
           <div>
-            <label className="font-medium">Sub Category</label>
+            <label className="text-sm font-medium">Sub Category</label>
             <select
-              className="w-full mt-1 p-2 border rounded bg-slate-50"
               value={selectSubCategory}
               disabled={!selectCategory}
               onChange={(e) => {
-                const value = e.target.value;
-                const sc = allSubCategory.find((s) => s._id === value);
-                if (!sc) return;
-
-                setSelectSubCategory(value);
-
+                const val = e.target.value;
+                const sub = allSubCategory.find((s) => s._id === val);
+                if (!sub) return;
+                setSelectSubCategory(val);
                 setData((prev) => ({
                   ...prev,
-                  subCategory: [sc],
+                  subCategory: [sub],
                 }));
               }}
+              className="w-full mt-1 p-2 border rounded bg-slate-50"
             >
               <option value="">
-                {selectCategory
-                  ? "Select sub category"
-                  : "Select category first"}
+                {selectCategory ? "Select sub category" : "Select category first"}
               </option>
-
               {allSubCategory
-                .filter((sub) =>
-                  sub.category.some((c) => c._id === selectCategory)
+                .filter((s) =>
+                  s.category.some((c) => c._id === selectCategory)
                 )
-                .map((sub) => (
-                  <option key={sub._id} value={sub._id}>
-                    {sub.name}
+                .map((s) => (
+                  <option key={s._id} value={s._id}>
+                    {s.name}
                   </option>
                 ))}
             </select>
           </div>
         </div>
 
-        <button className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold">
+        {/* PRICE & STOCK */}
+        <div className="grid md:grid-cols-3 gap-4">
+          <input
+            name="stock"
+            value={data.stock}
+            onChange={handleChange}
+            placeholder="Available stock (e.g. 50)"
+            className="p-2 border rounded bg-slate-50"
+          />
+          <input
+            name="price"
+            value={data.price}
+            onChange={handleChange}
+            placeholder="Selling price (₹)"
+            className="p-2 border rounded bg-slate-50"
+          />
+          <input
+            name="discount"
+            value={data.discount}
+            onChange={handleChange}
+            placeholder="Discount percentage (e.g. 10)"
+            className="p-2 border rounded bg-slate-50"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setOpenAddField(true)}
+          className="border px-4 py-1 rounded text-sm"
+        >
+          + Add Custom Field
+        </button>
+
+        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold">
           Submit Product
         </button>
       </form>
