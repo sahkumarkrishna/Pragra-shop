@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
+
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import helmet from "helmet";
@@ -26,6 +27,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 /* ================= MIDDLEWARE ================= */
+
 app.use(
   cors({
     origin: ["https://pragra-shop.onrender.com"],
@@ -37,14 +39,14 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 
-/* ================= HELMET FIX (CSP) ================= */
+/* ================= HELMET + CSP (FIXED) ================= */
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
+        imgSrc: ["'self'", "data:", "https:"], // Cloudinary & CDN
         scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'", "https:"],
         fontSrc: ["'self'", "data:", "https:"],
@@ -76,6 +78,6 @@ app.get(/^(?!\/api).*/, (req, res) => {
 /* ================= START SERVER ================= */
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`✅ Server running on port ${PORT}`);
   });
 });
