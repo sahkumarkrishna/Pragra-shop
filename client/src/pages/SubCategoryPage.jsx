@@ -16,13 +16,15 @@ const SubCategoryPage = () => {
   const [openAddSubCategory, setOpenAddSubCategory] = useState(false);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const columnHelper = createColumnHelper();
   const [imageURL, setImageURL] = useState("");
   const [openEdit, setOpenEdit] = useState(false);
   const [editData, setEditData] = useState({ _id: "" });
   const [deleteSubCategory, setDeleteSubCategory] = useState({ _id: "" });
   const [openDeleteConfirmBox, setOpenDeleteConfirmBox] = useState(false);
 
+  const columnHelper = createColumnHelper();
+
+  /* ================= FETCH SUB CATEGORY ================= */
   const fetchSubCategory = async () => {
     try {
       setLoading(true);
@@ -41,6 +43,7 @@ const SubCategoryPage = () => {
     fetchSubCategory();
   }, []);
 
+  /* ================= TABLE COLUMNS ================= */
   const column = [
     columnHelper.accessor("name", {
       header: "Sub Category",
@@ -104,6 +107,7 @@ const SubCategoryPage = () => {
     }),
   ];
 
+  /* ================= DELETE HANDLER ================= */
   const handleDeleteSubCategory = async () => {
     try {
       const response = await Axios({
@@ -124,7 +128,6 @@ const SubCategoryPage = () => {
 
   return (
     <section className="bg-slate-50 min-h-screen p-3 sm:p-4">
-
       {/* HEADER */}
       <div className="bg-white shadow rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
         <div>
