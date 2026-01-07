@@ -26,15 +26,33 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 /* ================= MIDDLEWARE ================= */
-app.use(cors({
-  origin: ["https://pragra-shop.onrender.com"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: ["https://pragra-shop.onrender.com"],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(helmet({ crossOriginResourcePolicy: false }));
+
+/* ================= HELMET FIX (CSP) ================= */
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+        fontSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "https:"],
+      },
+    },
+  })
+);
 
 /* ================= API ROUTES ================= */
 app.use("/api/user", userRouter);
@@ -50,7 +68,7 @@ app.use("/api/order", orderRouter);
 const staticPath = path.join(__dirname, "../client/dist");
 app.use(express.static(staticPath));
 
-// Express v5 compatible fallback (NO "*")
+// SPA fallback (Express v5 safe)
 app.get(/^(?!\/api).*/, (req, res) => {
   res.sendFile(path.join(staticPath, "index.html"));
 });
